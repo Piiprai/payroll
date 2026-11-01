@@ -68,6 +68,30 @@ main{max-width:560px;margin:0 auto;padding:12px 16px 110px}
 .thb{font-size:1.15rem;font-weight:600;color:var(--muted);margin:-4px 0 8px}
 .fxpill{border:0;background:var(--soft);border-radius:999px;padding:4px 10px;font-size:.8rem;color:var(--muted);font-weight:500}
 .fxpill b{color:var(--ink);font-weight:600}
+.dedc{background:var(--surface);border-radius:18px;padding:14px 16px;margin-top:12px}
+.dedc .nl{color:var(--muted);font-size:.86rem;margin:0}
+.dedc .net{font-size:1.7rem;font-weight:700;line-height:1.15;color:var(--c4)}
+.dedc .netb{color:var(--muted);font-weight:600;font-size:.95rem;margin-bottom:8px}
+.dline{display:flex;justify-content:space-between;gap:10px;font-size:.88rem;padding:6px 0;border-top:1px solid var(--line);color:var(--muted)}
+.dline b{color:var(--ink);font-weight:500;white-space:nowrap}
+.dline.tot b,.dline.tot span{color:var(--sun);font-weight:700}
+.dfield{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line);font-size:.92rem}
+.dfield:last-child{border-bottom:0}
+.dfield small{color:var(--muted);font-size:.78rem;display:block}
+.dfield .u{color:var(--muted);font-size:.85rem;min-width:2.2rem}
+.dbar{display:flex;height:14px;border-radius:7px;overflow:hidden;background:var(--soft);margin:12px 0 6px}
+.dbar span{height:100%}
+.dleg{display:flex;justify-content:space-between;font-size:.8rem;color:var(--muted)}
+.drow{display:grid;grid-template-columns:12px 1fr auto;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.drow:last-child{border-bottom:0}
+.drow i{width:10px;height:10px;border-radius:3px}
+.drow small{display:block;color:var(--muted);font-size:.8rem}
+.drow b{font-weight:600;white-space:nowrap;text-align:right}
+.drow b small{font-weight:500;text-align:right}
+.drow.tot{border-top:2px solid var(--line);border-bottom:0}
+.drow.tot b,.drow.tot span{color:var(--sun);font-weight:700}
+.drow.net b,.drow.net span{color:var(--c4);font-weight:700}
+.zeros{color:var(--muted);font-size:.8rem;margin-top:8px}
 .more{border:0;background:none;color:var(--accent);font-weight:600;font-size:.85rem;padding:8px 0 4px;width:100%;text-align:center}
 .iconbtn{border:1px solid var(--line);background:var(--surface);width:38px;height:38px;border-radius:50%;font-size:1.05rem;flex:0 0 auto}
 .back{border:0;background:none;color:var(--accent);font-weight:600;font-size:.95rem;padding:6px 0}
@@ -177,7 +201,7 @@ h2 small{color:var(--muted);font-weight:500;font-size:.84rem}
 
 /* tab bar */
 .tabs{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);display:flex;justify-content:center;padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px));z-index:20}
-.tabs div{display:grid;grid-template-columns:repeat(2,1fr);width:100%;max-width:560px}
+.tabs div{display:grid;grid-template-columns:repeat(3,1fr);width:100%;max-width:560px}
 .tabs button{border:0;background:transparent;padding:6px 4px;border-radius:12px;color:var(--muted);font-size:.8rem;display:flex;flex-direction:column;align-items:center;gap:1px}
 .tabs button span{font-size:1.25rem;line-height:1.2}
 .tabs button[aria-selected="true"]{color:var(--accent);font-weight:600}
@@ -238,8 +262,30 @@ h2 small{color:var(--muted);font-weight:500;font-size:.84rem}
       <div class="brk" id="brk"></div>
       <button class="more" id="brkMore" hidden></button>
     </div>
+    <div class="dedc" id="ded" hidden></div>
     <h2>บันทึกรายวัน <span class="dmode"><button data-m="cal">ปฏิทิน</button><button data-m="list">เฉพาะวันทำงาน</button></span></h2>
     <div class="days" id="days"></div>
+  </section>
+
+  <!-- รายการหัก -->
+  <section id="v-ded" hidden>
+    <div class="top">
+      <h1>รายการหัก</h1>
+      <div class="pnav">
+        <button id="qPrev" aria-label="งวดก่อน">‹</button>
+        <span id="qTitle">—</span>
+        <button id="qNext" aria-label="งวดถัดไป">›</button>
+      </div>
+      <button class="iconbtn" data-go="settings" aria-label="ตั้งค่า">⚙️</button>
+    </div>
+    <div class="hero" id="qHero"></div>
+    <h2>รายละเอียดการหัก <small id="qRange"></small></h2>
+    <div class="card" id="qList"></div>
+    <h2>รวมทั้งปี <small id="qYear"></small></h2>
+    <div class="card" id="qYearList"></div>
+    <h2>ตั้งค่ารายการหัก</h2>
+    <div class="card" id="dedSet"></div>
+    <p class="hint">ตั้งตามสลิปเงินเดือนของคุณ ใส่ 0 ถ้าไม่ถูกหัก ภาษีจริงคิดตามตารางของสรรพากรเกาหลี ตัวเลขในแอปจึงเป็นยอดประมาณ อาจต่างจากสลิปหลักสิบถึงหลักร้อยวอน</p>
   </section>
 
   <!-- สรุปทั้งปี -->
@@ -255,7 +301,7 @@ h2 small{color:var(--muted);font-weight:500;font-size:.84rem}
     </div>
     <div class="card">
       <div class="ytot">
-        <div><small>รวมทั้งปี (ก่อนหัก)</small><div class="big num" id="yTotal">₩0</div><small class="num" id="yThb"></small></div>
+        <div><small>รวมทั้งปี (ก่อนหัก)</small><div class="big num" id="yTotal">₩0</div><small class="num" id="yThb"></small><small class="num" id="yNet" style="color:var(--c4);font-weight:600"></small></div>
         <div style="text-align:right"><small>เฉลี่ยต่อเดือน</small><b class="num" id="yAvg">₩0</b><small id="yHrs"></small></div>
       </div>
       <div id="months"></div>
@@ -309,6 +355,7 @@ h2 small{color:var(--muted);font-weight:500;font-size:.84rem}
 
 <nav class="tabs" role="tablist"><div>
   <button role="tab" data-v="period" aria-selected="true"><span>🗓️</span>งวดนี้</button>
+  <button role="tab" data-v="ded" aria-selected="false"><span>🧾</span>รายการหัก</button>
   <button role="tab" data-v="year" aria-selected="false"><span>📊</span>ทั้งปี</button>
 </div></nav>
 
@@ -464,6 +511,50 @@ function renderFx(c){
   $("fxPill").innerHTML = r ? "₩1,000 = <b>฿" + (r * 1000).toFixed(2) + "</b> · " + fxWhen() + " ↻" : "ตั้งอัตราเงินบาท ↻";
 }
 
+/* ---------- deductions ---------- */
+const DED_DEF = { meal:200000, pension:4.75, health:3.595, ltc:0, emp:0, tax:1.1, local:10, other:0 };
+const DED_FIELDS = [
+  ["meal","ค่าอาหาร","식대공제 · หักเท่ากันทุกเดือน","₩"],
+  ["pension","ประกันบำนาญ","국민연금 · % ของยอดก่อนหัก","%"],
+  ["health","ประกันสุขภาพ","건강보험 · % ของยอดก่อนหัก","%"],
+  ["ltc","ประกันผู้สูงอายุ","장기요양 · % ของประกันสุขภาพ","%"],
+  ["emp","ประกันจ้างงาน","고용보험 · % ของยอดก่อนหัก","%"],
+  ["tax","ภาษีเงินได้","소득세 · % ของยอดก่อนหัก (ประมาณ)","%"],
+  ["local","ภาษีท้องถิ่น","지방소득세 · % ของภาษีเงินได้","%"],
+  ["other","หักอื่นๆ","기타공제 · หักเท่ากันทุกเดือน","₩"]
+];
+const dedCfg = () => ({ ...DED_DEF, ...(settings.ded || {}) });
+const f10 = n => Math.floor(n / 10) * 10;
+function deduct(gross){
+  if (!(gross > 0)) return { items:[], total:0, net:0, zeros:[] };
+  const d = dedCfg(), health = f10(gross * d.health / 100), tax = f10(gross * d.tax / 100);
+  const g = won(gross), pc = v => (+v).toLocaleString("en-US", { maximumFractionDigits:3 }) + "%";
+  const all = [
+    ["ค่าอาหาร (식대)", d.meal, "หักคงที่ทุกเดือน", "#E8590C"],
+    ["ประกันบำนาญ (국민연금)", f10(gross * d.pension / 100), g + " × " + pc(d.pension), "#7048E8"],
+    ["ประกันสุขภาพ (건강보험)", health, g + " × " + pc(d.health), "#0FA37F"],
+    ["ประกันผู้สูงอายุ (장기요양)", f10(health * d.ltc / 100), "ประกันสุขภาพ × " + pc(d.ltc), "#12B886"],
+    ["ประกันจ้างงาน (고용보험)", f10(gross * d.emp / 100), g + " × " + pc(d.emp), "#1C7ED6"],
+    ["ภาษีเงินได้ (소득세)", tax, g + " × " + pc(d.tax) + " (ประมาณ)", "#D6336C"],
+    ["ภาษีท้องถิ่น (지방소득세)", f10(tax * d.local / 100), "ภาษีเงินได้ × " + pc(d.local), "#F06595"],
+    ["หักอื่นๆ (기타)", d.other, "หักคงที่ทุกเดือน", "#868E96"]
+  ];
+  const items = all.filter(x => x[1] > 0);
+  const total = items.reduce((a, x) => a + x[1], 0);
+  return { items, total, net: gross - total, zeros: all.filter(x => !(x[1] > 0)).map(x => x[0]) };
+}
+function renderDed(c){
+  const box = $("ded"), r = deduct(c.pay);
+  box.hidden = !c.pay; box.textContent = "";
+  if (!c.pay) return;
+  const add = (cls, html) => { const e = document.createElement("div"); e.className = cls; e.innerHTML = html; box.appendChild(e); return e; };
+  add("nl", "ได้รับจริงประมาณ (หลังหัก)");
+  add("net num", "").textContent = won(r.net);
+  if (fxRate()) add("netb num", "").textContent = "≈ " + baht(r.net * fxRate());
+  const t = add("dline tot", "<span>รวมหัก " + r.items.length + " รายการ</span><b class='num'></b>"); t.children[1].textContent = "−" + won(r.total) + " (" + (r.total / c.pay * 100).toFixed(1) + "%)";
+  const m = document.createElement("button"); m.className = "more"; m.textContent = "ดูรายละเอียดการหัก ›"; m.onclick = () => setView("ded"); box.appendChild(m);
+}
+
 /* ---------- render: period ---------- */
 let brkAll = false;
 function renderPeriod(){
@@ -472,6 +563,7 @@ function renderPeriod(){
   const c = calc(cur);
   $("pay").textContent = won(c.pay);
   renderFx(c);
+  renderDed(c);
   $("range").textContent = "งวด " + fmtD(startOf(cur)) + " – " + fmtD(endOf(cur));
   $("hrs").textContent = hrs(c.hours) + " ชม.";
   $("rateBtn").textContent = won(c.rate) + "/ชม. ✎";
@@ -612,6 +704,8 @@ function renderYear(){
     c.tot.forEach((x, i) => tot[i] += x);
   }
   $("yTotal").textContent = won(sum);
+  { let nt = 0; for (let m = 1; m <= 12; m++) nt += deduct(calc(keyOf(year, m)).pay).net;
+    $("yNet").textContent = nt ? "หลังหักประมาณ " + won(nt) + (fxRate() ? " ≈ " + baht(nt * fxRate()) : "") : ""; }
   $("yThb").textContent = fxRate() ? "≈ " + baht(sum * fxRate()) + " · เฉลี่ย " + baht((n ? sum / n : 0) * fxRate()) + "/เดือน" : "";
   $("yAvg").textContent = won(n ? sum / n : 0);
   $("yHrs").textContent = hrs(h) + " ชม. · " + n + " เดือน";
@@ -636,7 +730,76 @@ function renderYear(){
 }
 
 /* ---------- render: settings ---------- */
+function renderDedView(){
+  const [y, m] = cur.split("-").map(Number);
+  $("qTitle").textContent = MSHORT[m-1] + " " + y;
+  $("qRange").textContent = "งวด " + fmtD(startOf(cur)) + " – " + fmtD(endOf(cur));
+  const c = calc(cur), r = deduct(c.pay), fr = fxRate();
+  const H = $("qHero"); H.textContent = "";
+  const el = (tag, cls, txt, parent) => { const e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; (parent || H).appendChild(e); return e; };
+  if (!c.pay) { el("p", "lbl", "ยังไม่มีเงินเดือนในงวดนี้"); el("p", "hint", "กรอกชั่วโมงในหน้า \"งวดนี้\" ก่อน แล้วรายการหักจะคำนวณให้อัตโนมัติ"); }
+  else {
+    el("p", "lbl", "ได้รับจริงประมาณ (หลังหัก)");
+    el("div", "pay num", won(r.net)).style.color = "var(--c4)";
+    if (fr) el("div", "thb num", "≈ " + baht(r.net * fr));
+    const bar = el("div", "dbar");
+    const seg = (w, col, t) => { const sp = document.createElement("span"); sp.style.width = w + "%"; sp.style.background = col; sp.title = t; bar.appendChild(sp); };
+    seg(r.net / c.pay * 100, "var(--c4)", "ได้รับจริง");
+    for (const it of r.items) seg(it[1] / c.pay * 100, it[3], it[0]);
+    const lg = el("div", "dleg");
+    el("span", "", "ได้รับ " + (r.net / c.pay * 100).toFixed(1) + "%", lg); el("span", "", "ถูกหัก " + (r.total / c.pay * 100).toFixed(1) + "%", lg);
+  }
+  const L = $("qList"); L.textContent = "";
+  const row = (cls, color, name, sub, amt, amtSub, parent) => {
+    const e = document.createElement("div"); e.className = "drow" + (cls ? " " + cls : "");
+    e.innerHTML = "<i></i><span><span></span><small></small></span><b class='num'><span></span><small></small></b>";
+    e.children[0].style.background = color || "transparent";
+    e.querySelector("span span").textContent = name; e.querySelector("span small").textContent = sub || "";
+    e.querySelector("b span").textContent = amt; e.querySelector("b small").textContent = amtSub || "";
+    (parent || L).appendChild(e);
+  };
+  if (!c.pay) L.innerHTML = '<div class="empty">ยังไม่มีข้อมูล</div>';
+  else {
+    row("", "var(--accent)", "เงินเดือนก่อนหัก (지급총액)", hrs(c.hours) + " ชม.", won(c.pay), fr ? "≈ " + baht(c.pay * fr) : "");
+    for (const [n, v, f, col] of r.items) row("", col, n, f, "−" + won(v), (v / c.pay * 100).toFixed(2) + "%");
+    row("tot", "", "รวมหัก (공제총액)", "", "−" + won(r.total), fr ? "≈ " + baht(r.total * fr) : "");
+    row("net", "var(--c4)", "ได้รับจริง (실지급액)", "", won(r.net), fr ? "≈ " + baht(r.net * fr) : "");
+    if (r.zeros.length) { const z = document.createElement("div"); z.className = "zeros"; z.textContent = "ไม่ถูกหัก: " + r.zeros.join(", "); L.appendChild(z); }
+  }
+  // yearly
+  const yr = y; $("qYear").textContent = String(yr);
+  const sums = {}, cols = {}; let gS = 0, tS = 0, nS = 0, mo = 0;
+  for (let mm = 1; mm <= 12; mm++) {
+    const cc = calc(keyOf(yr, mm)); if (!cc.pay) continue; mo++;
+    const rr = deduct(cc.pay); gS += cc.pay; tS += rr.total; nS += rr.net;
+    for (const [n, v, , col] of rr.items) { sums[n] = (sums[n] || 0) + v; cols[n] = col; }
+  }
+  const Y = $("qYearList"); Y.textContent = "";
+  if (!mo) Y.innerHTML = '<div class="empty">ยังไม่มีข้อมูลปีนี้</div>';
+  else {
+    row("", "var(--accent)", "เงินเดือนก่อนหักทั้งปี", mo + " เดือน", won(gS), fr ? "≈ " + baht(gS * fr) : "", Y);
+    for (const n of Object.keys(sums)) row("", cols[n], n, "เฉลี่ย " + won(sums[n] / mo) + "/เดือน", "−" + won(sums[n]), "", Y);
+    row("tot", "", "รวมหักทั้งปี", "", "−" + won(tS), fr ? "≈ " + baht(tS * fr) : "", Y);
+    row("net", "var(--c4)", "ได้รับจริงทั้งปี", "", won(nS), fr ? "≈ " + baht(nS * fr) : "", Y);
+  }
+}
+function renderDedSettings(){
+  const box = $("dedSet"), d = dedCfg(); box.textContent = "";
+  for (const [k, label, sub, unit] of DED_FIELDS) {
+    const r = document.createElement("div"); r.className = "dfield";
+    r.innerHTML = '<span><span></span><small></small></span><input class="inp num" inputmode="decimal" autocomplete="off"><span class="u"></span>';
+    r.querySelector("span span").textContent = label; r.querySelector("small").textContent = sub;
+    r.querySelector(".u").textContent = unit === "₩" ? "วอน" : "%";
+    const inp = r.querySelector("input"); inp.value = unit === "₩" ? Number(d[k]).toLocaleString("en-US") : d[k]; inp.setAttribute("aria-label", label);
+    inp.onchange = () => {
+      const n = parseFloat(String(inp.value).replace(/,/g, ""));
+      if (n >= 0) { settings.ded = { ...dedCfg(), [k]: n }; persistSettings(); renderAll(); toast("บันทึก" + label + "แล้ว"); } else renderDedSettings();
+    };
+    box.appendChild(r);
+  }
+}
 function renderSettings(){
+  if (!document.activeElement || !$("dedSet").contains(document.activeElement)) renderDedSettings();
   const mode = settings.fxMode === "manual" ? "manual" : "auto";
   document.querySelectorAll("#fxSeg button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v === mode)));
   const fi = $("fxIn"); if (document.activeElement !== fi) fi.value = fxRate() ? (fxRate() * 1000).toFixed(2) : "";
@@ -669,13 +832,13 @@ function renderSettings(){
     mb.appendChild(r);
   });
 }
-function renderAll(){ renderPeriod(); renderYear(); renderSettings(); }
+function renderAll(){ renderPeriod(); renderDedView(); renderYear(); renderSettings(); }
 
 let lastView = "period";
 function setView(v){
   if (v !== "settings") lastView = v;
   view = v;
-  for (const s of ["period","year","settings"]) $("v-" + s).hidden = s !== v;
+  for (const s of ["period","ded","year","settings"]) $("v-" + s).hidden = s !== v;
   document.querySelectorAll(".tabs button").forEach(b => b.setAttribute("aria-selected", String(b.dataset.v === v)));
   renderAll(); window.scrollTo(0, 0);
   if (v === "settings") fillRateForm(cur);
@@ -778,6 +941,8 @@ function saveRate(){
   toast("บันทึกแล้ว " + won(n) + "/ชม. ตั้งแต่ " + MSHORT[m-1] + " " + y);
 }
 $("rPeriod").onchange = showRate;
+$("qPrev").onclick = () => { cur = shiftKey(cur, -1); renderAll(); };
+$("qNext").onclick = () => { cur = shiftKey(cur, 1); renderAll(); };
 $("fxPill").onclick = () => { if (settings.fxMode === "manual" || !fxRate()) setView("settings"); else refreshFx(true); };
 document.querySelectorAll("#fxSeg button").forEach(b => b.onclick = () => { settings.fxMode = b.dataset.v; persistSettings(); renderAll(); if (b.dataset.v === "auto") refreshFx(true); else $("fxIn").focus(); });
 $("fxIn").onchange = () => { const n = parseFloat(String($("fxIn").value).replace(/,/g, "")); if (n > 0) { settings.fxManual = n / 1000; persistSettings(); renderAll(); toast("บันทึกอัตรา ₩1,000 = ฿" + n.toFixed(2)); } else renderSettings(); };
