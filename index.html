@@ -1,0 +1,809 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>คิดเงินเดือน</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#2251CC">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anuphan:wght@400;500;600;700&family=Chakra+Petch:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EDF0F4; --surface:#FFFFFF; --ink:#18202B; --muted:#687384; --line:#E0E5EC; --soft:#F2F4F8;
+  --accent:#2251CC; --sun:#D63B3B; --sat:#2B6FD6;
+  --c0:#2251CC; --c1:#5A8FF0; --c2:#E8590C; --c3:#F2A20C; --c4:#0FA37F; --c5:#7048E8;
+  --shadow:0 8px 24px -14px rgba(24,32,43,.45);
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E1116; --surface:#181C23; --ink:#E9EDF3; --muted:#9AA4B4; --line:#2A303A; --soft:#20252E;
+    --accent:#7AA2FF; --sun:#FF7B7B; --sat:#7FB0FF;
+    --c0:#7AA2FF; --c1:#A6C4FF; --c2:#FF8A4C; --c3:#FFC247; --c4:#3DD6A8; --c5:#A98BFF;
+    --shadow:0 8px 24px -14px rgba(0,0,0,.8);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E1116; --surface:#181C23; --ink:#E9EDF3; --muted:#9AA4B4; --line:#2A303A; --soft:#20252E;
+  --accent:#7AA2FF; --sun:#FF7B7B; --sat:#7FB0FF;
+  --c0:#7AA2FF; --c1:#A6C4FF; --c2:#FF8A4C; --c3:#FFC247; --c4:#3DD6A8; --c5:#A98BFF;
+  --shadow:0 8px 24px -14px rgba(0,0,0,.8);
+  color-scheme:dark;
+}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+html{font-size:16px}
+html.big{font-size:18.5px}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 1rem/1.5 "Anuphan","Leelawadee UI","Thonburi",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+body.lock{overflow:hidden}
+.num{font-family:"Chakra Petch","Anuphan",system-ui,sans-serif;font-variant-numeric:tabular-nums}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer;-webkit-tap-highlight-color:transparent}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+main{max-width:560px;margin:0 auto;padding:12px 16px 110px}
+[hidden]{display:none!important}
+
+.top{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px}
+.top h1{margin:0;font-size:1.25rem;font-weight:700}
+.pnav{display:flex;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:2px}
+.pnav button{border:0;background:transparent;width:34px;height:34px;border-radius:50%;font-size:1.15rem;color:var(--muted)}
+.pnav button:hover{background:var(--soft)}
+.pnav span{min-width:6.5rem;text-align:center;font-weight:600;font-size:.92rem}
+
+.hero{background:var(--surface);border-radius:20px;padding:18px 18px 8px;box-shadow:var(--shadow)}
+.hero .lbl{color:var(--muted);font-size:.88rem;margin:0}
+.hero .pay{font-size:clamp(2.2rem,9vw,2.9rem);font-weight:700;line-height:1.15;margin:2px 0 4px}
+.status{display:flex;flex-wrap:wrap;gap:6px;margin:-2px 0 12px}
+.status button,.status span{border:0;border-radius:999px;padding:4px 10px;font-size:.82rem;font-weight:600;background:var(--soft);color:var(--muted)}
+.status .todo{background:color-mix(in srgb,var(--sun) 12%,var(--surface));color:var(--sun)}
+.status .done{background:color-mix(in srgb,var(--c4) 14%,var(--surface));color:var(--c4)}
+.more{border:0;background:none;color:var(--accent);font-weight:600;font-size:.85rem;padding:8px 0 4px;width:100%;text-align:center}
+.iconbtn{border:1px solid var(--line);background:var(--surface);width:38px;height:38px;border-radius:50%;font-size:1.05rem;flex:0 0 auto}
+.back{border:0;background:none;color:var(--accent);font-weight:600;font-size:.95rem;padding:6px 0}
+.segc{display:flex;background:var(--soft);border-radius:10px;padding:3px}
+.segc button{border:0;background:transparent;border-radius:8px;padding:6px 10px;font-size:.85rem;color:var(--muted);font-weight:500}
+.segc button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.1)}
+.hero .sub{color:var(--muted);font-size:.86rem;display:flex;flex-wrap:wrap;gap:4px 14px;margin-bottom:12px}
+.rate{border:0;background:var(--soft);border-radius:8px;padding:2px 8px;font-size:.84rem;color:var(--accent);font-weight:600}
+.brk{border-top:1px solid var(--line)}
+.brk div{display:grid;grid-template-columns:12px 1fr auto;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line);font-size:.93rem}
+.brk div:last-child{border-bottom:0}
+.brk i{width:10px;height:10px;border-radius:3px}
+.brk small{color:var(--muted);font-size:.8rem;display:block}
+.brk .nm{line-height:1.3}
+.brk b{font-weight:600;min-width:6.5rem;text-align:right}
+.brk .zero{opacity:.45}
+
+h2{font-size:1rem;margin:20px 2px 8px;font-weight:600;display:flex;justify-content:space-between;align-items:baseline}
+h2 small{color:var(--muted);font-weight:500;font-size:.84rem}
+.days{background:var(--surface);border-radius:18px;overflow:hidden}
+.day{display:grid;grid-template-columns:4.4rem 1fr auto;gap:10px;align-items:center;width:100%;border:0;border-bottom:1px solid var(--line);background:transparent;padding:10px 14px;text-align:left;min-height:52px}
+.day:last-child{border-bottom:0}
+.day:hover{background:var(--soft)}
+.day .d{line-height:1.15}
+.day .d b{display:block;font-size:1.05rem}
+.day .d small{color:var(--muted);font-size:.78rem}
+.day.sun .d b,.day.sun .d small{color:var(--sun)}
+.day.today{box-shadow:inset 3px 0 0 var(--accent)}
+.pills{display:flex;flex-wrap:wrap;gap:5px}
+.pill{font-size:.8rem;padding:2px 8px;border-radius:999px;color:#fff;font-weight:500;white-space:nowrap}
+.pill .num{font-weight:600}
+.empty{color:var(--muted);font-size:.85rem}
+.day .amt{font-size:.88rem;color:var(--muted)}
+
+/* calendar */
+.dmode{display:flex;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:2px}
+.dmode button{border:0;background:transparent;border-radius:999px;padding:4px 12px;font-size:.82rem;color:var(--muted);font-weight:500}
+.dmode button[aria-pressed="true"]{background:var(--ink);color:var(--surface)}
+.cal{background:var(--surface);border-radius:18px;padding:10px 8px 12px}
+.cal-head,.cal-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr)) 2.5rem;gap:4px}
+.cal-head span{text-align:center;font-size:.76rem;color:var(--muted);padding-bottom:4px}
+.cal-head .sunc{color:var(--sun)}
+.cal-head .satc{color:var(--sat)}
+.cell{border:0;border-radius:10px;background:var(--soft);min-height:70px;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:manipulation;padding:5px 2px 4px;display:flex;flex-direction:column;align-items:center;gap:1px;line-height:1.15;min-width:0}
+.cell.pad{background:transparent}
+.cell .dn{font-size:.92rem;color:var(--muted);font-weight:600;margin-bottom:3px;white-space:nowrap;max-width:100%;overflow:hidden}
+.cell .dn.m{font-size:.68rem;color:var(--ink)}
+.cell.sun .dn{color:var(--sun)}
+.cell.work{background:color-mix(in srgb,var(--c0) 13%,var(--surface))}
+.cell.hol{background:color-mix(in srgb,var(--c2) 15%,var(--surface))}
+.cell.free{background:color-mix(in srgb,var(--c5) 13%,var(--surface))}
+.cell.today{box-shadow:inset 0 0 0 2px var(--accent)}
+.cell .hl{font-weight:700;font-size:.92rem;white-space:nowrap}
+.cell .dp{font-size:.66rem;color:var(--muted);white-space:nowrap}
+.cell.sat .dn{color:var(--sat)}
+.cell.press{transform:scale(.94);transition:transform .15s}
+.wk{display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:10px;background:var(--bg);font-size:.72rem;color:var(--muted);line-height:1.15;text-align:center}
+.wk b{font-size:.9rem;color:var(--ink)}
+.wk.heavy b{color:var(--sun)}
+.cell .hn{font-size:.6rem;color:var(--sun);font-weight:600;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis;margin-top:-2px}
+.cell.phol:not(.work):not(.hol):not(.free){background:color-mix(in srgb,var(--sun) 8%,var(--surface))}
+.holnote{background:color-mix(in srgb,var(--sun) 10%,var(--surface));color:var(--sun);border-radius:10px;padding:8px 12px;font-size:.88rem;margin-bottom:10px}
+.cell:hover{filter:brightness(.97)}
+.calleg{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 14px;margin-top:10px;font-size:.78rem;color:var(--muted)}
+.calleg i{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:4px}
+
+/* year */
+.card{background:var(--surface);border-radius:18px;padding:16px}
+.ytot{display:flex;justify-content:space-between;align-items:flex-end;gap:10px;margin-bottom:14px}
+.ytot .big{font-size:1.9rem;font-weight:700;line-height:1.1}
+.ytot small{color:var(--muted);font-size:.85rem;display:block}
+.slip{background:var(--surface);border-radius:18px;padding:14px 16px;margin-top:12px}
+.slip-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.link{border:0;background:none;color:var(--accent);font-weight:600;font-size:.88rem;padding:4px}
+.verdict{font-weight:700;font-size:1.1rem;margin:2px 0 6px}
+.ok{color:var(--c4)} .short{color:var(--sun)} .over{color:var(--accent)}
+.sline{display:flex;justify-content:space-between;font-size:.9rem;padding:4px 0;color:var(--muted);border-top:1px solid var(--line)}
+.sline b{color:var(--ink);font-weight:600}
+#slipForm{grid-template-columns:1fr}
+.mst{font-size:.85rem;text-align:center;font-weight:700}
+.mrow{display:grid;grid-template-columns:3.2rem 1fr 6.8rem;gap:10px;align-items:center;padding:6px 0;width:100%;border:0;background:transparent;text-align:left;border-radius:8px}
+.mrow:hover{background:var(--soft)}
+.mrow .track{height:12px;background:var(--soft);border-radius:6px;overflow:hidden}
+.mrow .fill{height:100%;background:var(--accent);border-radius:6px}
+.mrow b{text-align:right;font-weight:600;font-size:.92rem}
+.mrow span{font-size:.9rem}
+
+/* settings */
+.set{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line)}
+.set:last-child{border-bottom:0}
+.set label{display:flex;align-items:center;gap:8px}
+.set label i{width:10px;height:10px;border-radius:3px}
+.inp{border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:7px 10px;width:6.5rem;text-align:right}
+.hint{color:var(--muted);font-size:.84rem;margin:8px 2px 0}
+.rform{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.rform label{display:flex;flex-direction:column;gap:4px;font-size:.85rem;color:var(--muted)}
+.rform select,.rform .inp{width:100%;text-align:left;border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:10px 12px;font-size:1rem;color:var(--ink)}
+.rform .btn{grid-column:1/-1;height:48px;font-size:1rem}
+.rnow{grid-column:1/-1;font-size:.88rem;color:var(--muted)}
+.rnow b{color:var(--ink)}
+.set .amt{color:var(--muted);font-size:.84rem}
+.btn{border:0;border-radius:12px;padding:11px 14px;font-weight:600;background:var(--accent);color:var(--surface)}
+.ghost{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:8px 12px;font-size:.88rem}
+.del{border:0;background:transparent;color:var(--muted);width:32px;height:32px;border-radius:8px}
+.del:hover{background:var(--soft);color:var(--sun)}
+.foot{color:var(--muted);font-size:.8rem;text-align:center;margin-top:18px}
+
+/* tab bar */
+.tabs{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);display:flex;justify-content:center;padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px));z-index:20}
+.tabs div{display:grid;grid-template-columns:repeat(2,1fr);width:100%;max-width:560px}
+.tabs button{border:0;background:transparent;padding:6px 4px;border-radius:12px;color:var(--muted);font-size:.8rem;display:flex;flex-direction:column;align-items:center;gap:1px}
+.tabs button span{font-size:1.25rem;line-height:1.2}
+.tabs button[aria-selected="true"]{color:var(--accent);font-weight:600}
+
+/* sheet */
+.scrim{position:fixed;inset:0;background:rgba(8,10,16,.45);opacity:0;pointer-events:none;transition:opacity .2s;z-index:30}
+.scrim.open{opacity:1;pointer-events:auto}
+.sheet{position:fixed;left:0;right:0;bottom:0;margin:0 auto;max-width:560px;background:var(--surface);border-radius:22px 22px 0 0;padding:10px 16px calc(14px + env(safe-area-inset-bottom,0px));transform:translateY(105%);transition:transform .25s cubic-bezier(.2,.8,.2,1);z-index:31;max-height:94vh;overflow-y:auto}
+.sheet.open{transform:none}
+.grab{width:40px;height:5px;border-radius:3px;background:var(--line);margin:0 auto 8px}
+.shead{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.shead .dn{display:flex;align-items:center;gap:4px}
+.shead .dn button{border:0;background:var(--soft);width:34px;height:34px;border-radius:50%;font-size:1.1rem}
+.shead strong{font-size:1.1rem;min-width:9.5rem;text-align:center}
+.close{border:0;background:var(--soft);width:34px;height:34px;border-radius:50%}
+.presets{display:flex;gap:8px;overflow-x:auto;padding-bottom:10px;scrollbar-width:none}
+.presets::-webkit-scrollbar{display:none}
+.presets button{flex:0 0 auto;border:1px solid var(--line);background:var(--bg);border-radius:999px;padding:7px 12px;font-size:.88rem;white-space:nowrap}
+.step{padding:8px 0 10px;border-bottom:1px solid var(--line)}
+.srow{display:grid;grid-template-columns:12px 1fr auto;gap:10px;align-items:center;margin-bottom:6px}
+.srow input{width:4rem;text-align:center;border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:6px 4px;font-size:1.05rem}
+.chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:2px 0}
+.chips::-webkit-scrollbar{display:none}
+.chips button{flex:0 0 auto;min-width:40px;height:40px;border:0;border-radius:10px;background:var(--soft);font-family:"Chakra Petch",sans-serif;font-weight:600;font-size:1rem}
+.chips button[aria-pressed="true"]{color:#fff}
+.srow i{width:10px;height:10px;border-radius:3px}
+.step .ctl{display:flex;align-items:center;gap:6px}
+.step .ctl button{border:0;background:var(--soft);width:40px;height:40px;border-radius:12px;font-size:1.3rem;font-weight:600}
+.step .ctl input{width:3.6rem;text-align:center;border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:7px 4px;font-size:1.1rem}
+.sfoot{display:grid;grid-template-columns:1fr 1.4fr;gap:8px;margin-top:12px}
+.sfoot .btn,.sfoot .ghost{height:50px;font-size:1rem}
+.sum{text-align:right;color:var(--muted);font-size:.88rem;margin-top:8px}
+
+.toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--surface);padding:9px 18px;border-radius:999px;font-size:.9rem;opacity:0;pointer-events:none;transition:opacity .2s;z-index:40;white-space:nowrap}
+.toast.show{opacity:1}
+@media (prefers-reduced-motion:reduce){.sheet,.scrim,.toast{transition:none}}
+</style>
+</head>
+<body>
+<main>
+  <!-- งวดนี้ -->
+  <section id="v-period">
+    <div class="top">
+      <h1>เงินเดือน</h1>
+      <div class="pnav">
+        <button id="pPrev" aria-label="งวดก่อน">‹</button>
+        <span id="pTitle">—</span>
+        <button id="pNext" aria-label="งวดถัดไป">›</button>
+      </div>
+      <button class="iconbtn" data-go="settings" aria-label="ตั้งค่า">⚙️</button>
+    </div>
+    <div class="hero">
+      <p class="lbl">เงินเดือนงวดนี้ (ก่อนหัก)</p>
+      <div class="pay num" id="pay">₩0</div>
+      <div class="status" id="status"></div>
+      <div class="sub"><span id="range"></span><span id="hrs"></span><button class="rate num" id="rateBtn" title="แก้ค่าแรงต่อชั่วโมง"></button></div>
+      <div class="brk" id="brk"></div>
+      <button class="more" id="brkMore" hidden></button>
+    </div>
+    <h2>บันทึกรายวัน <span class="dmode"><button data-m="cal">ปฏิทิน</button><button data-m="list">เฉพาะวันทำงาน</button></span></h2>
+    <div class="days" id="days"></div>
+  </section>
+
+  <!-- สรุปทั้งปี -->
+  <section id="v-year" hidden>
+    <div class="top">
+      <h1>สรุปทั้งปี</h1>
+      <div class="pnav">
+        <button id="yPrev" aria-label="ปีก่อน">‹</button>
+        <span id="yTitle" class="num">—</span>
+        <button id="yNext" aria-label="ปีถัดไป">›</button>
+      </div>
+      <button class="iconbtn" data-go="settings" aria-label="ตั้งค่า">⚙️</button>
+    </div>
+    <div class="card">
+      <div class="ytot">
+        <div><small>รวมทั้งปี (ก่อนหัก)</small><div class="big num" id="yTotal">₩0</div></div>
+        <div style="text-align:right"><small>เฉลี่ยต่อเดือน</small><b class="num" id="yAvg">₩0</b><small id="yHrs"></small></div>
+      </div>
+      <div id="months"></div>
+    </div>
+    <h2>ชั่วโมงทั้งปีแยกประเภท</h2>
+    <div class="card"><div class="brk" id="yBrk" style="border-top:0"></div></div>
+    <div style="display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-top:14px"><button class="ghost" id="export">ดาวน์โหลด CSV</button><button class="ghost" id="bk">สำรองข้อมูล</button><button class="ghost" id="rs">นำเข้าไฟล์สำรอง</button><input type="file" id="rsFile" accept=".json,application/json" hidden></div>
+    <p class="hint" style="text-align:center">ข้อมูลเก็บในเบราว์เซอร์เครื่องนี้เท่านั้น ควรกด "สำรองข้อมูล" เป็นระยะ</p>
+  </section>
+
+  <!-- ตั้งค่า -->
+  <section id="v-settings" hidden>
+    <div class="top"><button class="back" id="back">‹ กลับ</button><h1>ตั้งค่า</h1><span style="width:3rem"></span></div>
+    <h2>การแสดงผล</h2>
+    <div class="card">
+      <div class="set"><span>ธีม</span><div class="segc" id="themeSeg"><button data-v="auto">อัตโนมัติ</button><button data-v="light">สว่าง</button><button data-v="dark">มืด</button></div></div>
+      <div class="set"><span>ขนาดตัวอักษร</span><div class="segc" id="sizeSeg"><button data-v="normal">ปกติ</button><button data-v="big">ใหญ่</button></div></div>
+    </div>
+    <h2>แก้ไขค่าแรง</h2>
+    <div class="card">
+      <div class="rform">
+        <label>ตั้งแต่งวด<select id="rPeriod"></select></label>
+        <label>ค่าแรงต่อชั่วโมง (₩)<input id="rValue" class="inp num" inputmode="numeric" autocomplete="off"></label>
+        <div class="rnow" id="rNow"></div>
+        <button class="btn" id="rSave">บันทึกค่าแรง</button>
+      </div>
+    </div>
+    <p class="hint">ค่าแรงที่บันทึกจะใช้ตั้งแต่งวดที่เลือกเป็นต้นไป จนกว่าจะมีการเปลี่ยนอีกครั้ง</p>
+    <h2>ประวัติค่าแรง</h2>
+    <div class="card" id="rates"></div>
+    <h2>วันเสาร์</h2>
+    <div class="card">
+      <div class="set" style="border-bottom:0">
+        <label for="satOff" style="flex-direction:column;align-items:flex-start;gap:0"><b style="font-weight:600">คิดวันเสาร์เป็นค่าแรงวันหยุด</b><small class="hint" style="margin:0" id="satInfo"></small></label>
+        <input type="checkbox" id="satOff" style="width:24px;height:24px;accent-color:var(--accent)">
+      </div>
+    </div>
+    <p class="hint">วันอาทิตย์และวันแดงคิดเป็นค่าแรงวันหยุดเสมอ ส่วนวันเสาร์ขึ้นอยู่กับกฎของบริษัท ลองเทียบกับสลิปดู</p>
+    <h2>ตัวคูณแต่ละประเภท</h2>
+    <div class="card" id="mults"></div>
+    <p class="hint">เช่น OT วันปกติ 1.5 เท่า หมายถึงได้ค่าแรง × 1.5 ต่อชั่วโมง</p>
+    <p class="foot" id="where">บันทึกไว้ในเบราว์เซอร์เครื่องนี้</p>
+  </section>
+</main>
+
+<nav class="tabs" role="tablist"><div>
+  <button role="tab" data-v="period" aria-selected="true"><span>🗓️</span>งวดนี้</button>
+  <button role="tab" data-v="year" aria-selected="false"><span>📊</span>ทั้งปี</button>
+</div></nav>
+
+<div class="scrim" id="scrim"></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="กรอกชั่วโมง" aria-hidden="true">
+  <div class="grab"></div>
+  <div class="shead">
+    <div class="dn">
+      <button id="dPrev" aria-label="วันก่อน">‹</button>
+      <strong id="dTitle">—</strong>
+      <button id="dNext" aria-label="วันถัดไป">›</button>
+    </div>
+    <button class="close" id="close" aria-label="ปิด">✕</button>
+  </div>
+  <div class="holnote" id="holNote" hidden></div>
+  <div class="presets" id="presets"></div>
+  <div id="steps"></div>
+  <div class="sum num" id="dSum"></div>
+  <div class="sfoot">
+    <button class="ghost" id="saveStay">บันทึก</button>
+    <button class="btn" id="saveNext">บันทึก แล้วไปวันถัดไป ›</button>
+  </div>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+const ITEMS = ["ทำงานวันปกติ","OT วันปกติ","ทำงานวันหยุด","OT วันหยุด","ค่ากะ","วันฟรี"];
+const SHORT = ["ปกติ","OT","วันหยุด","OT หยุด","กะ","ฟรี"];
+const MSHORT = ["ม.ค.","ก.พ.","มี.ค.","เม.ย.","พ.ค.","มิ.ย.","ก.ค.","ส.ค.","ก.ย.","ต.ค.","พ.ย.","ธ.ค."];
+const DAYS = ["อา.","จ.","อ.","พ.","พฤ.","ศ.","ส."];
+// วันหยุดราชการเกาหลี (공휴일 · 대체공휴일 · 선거일)
+const HOLIDAYS = {
+  "2026-01-01":"신정 ปีใหม่","2026-02-16":"설날 ตรุษเกาหลี","2026-02-17":"설날 ตรุษเกาหลี","2026-02-18":"설날 ตรุษเกาหลี",
+  "2026-03-01":"삼일절 วันขบวนการ 1 มี.ค.","2026-03-02":"대체공휴일 ชดเชยวันที่ 1 มี.ค.","2026-05-01":"노동절 วันแรงงาน",
+  "2026-05-05":"어린이날 วันเด็ก","2026-05-24":"부처님오신날 วันวิสาขบูชา","2026-05-25":"대체공휴일 ชดเชยวันวิสาขบูชา",
+  "2026-06-03":"지방선거 วันเลือกตั้งท้องถิ่น","2026-06-06":"현충일 วันรำลึกวีรชน","2026-07-17":"제헌절 วันรัฐธรรมนูญ",
+  "2026-08-15":"광복절 วันกู้ชาติ","2026-08-17":"대체공휴일 ชดเชยวันกู้ชาติ","2026-09-24":"추석 ชูซ็อก","2026-09-25":"추석 ชูซ็อก",
+  "2026-09-26":"추석 ชูซ็อก","2026-10-03":"개천절 วันสถาปนาชาติ","2026-10-05":"대체공휴일 ชดเชยวันสถาปนาชาติ",
+  "2026-10-09":"한글날 วันอักษรเกาหลี","2026-12-25":"성탄절 คริสต์มาส",
+  "2027-01-01":"신정 ปีใหม่","2027-02-06":"설날 ตรุษเกาหลี","2027-02-07":"설날 ตรุษเกาหลี","2027-02-08":"설날 ตรุษเกาหลี",
+  "2027-02-09":"대체공휴일 ชดเชยตรุษเกาหลี","2027-03-01":"삼일절 วันขบวนการ 1 มี.ค.","2027-05-01":"노동절 วันแรงงาน",
+  "2027-05-03":"대체공휴일 ชดเชยวันแรงงาน","2027-05-05":"어린이날 วันเด็ก","2027-05-13":"부처님오신날 วันวิสาขบูชา",
+  "2027-06-06":"현충일 วันรำลึกวีรชน","2027-07-17":"제헌절 วันรัฐธรรมนูญ","2027-07-19":"대체공휴일 ชดเชยวันรัฐธรรมนูญ",
+  "2027-08-15":"광복절 วันกู้ชาติ","2027-08-16":"대체공휴일 ชดเชยวันกู้ชาติ","2027-09-14":"추석 ชูซ็อก","2027-09-15":"추석 ชูซ็อก",
+  "2027-09-16":"추석 ชูซ็อก","2027-10-03":"개천절 วันสถาปนาชาติ","2027-10-04":"대체공휴일 ชดเชยวันสถาปนาชาติ",
+  "2027-10-09":"한글날 วันอักษรเกาหลี","2027-10-11":"대체공휴일 ชดเชยวันอักษรเกาหลี","2027-12-25":"성탄절 คริสต์มาส",
+  "2027-12-27":"대체공휴일 ชดเชยคริสต์มาส"
+};
+const holOf = d => HOLIDAYS[d] || "";
+const holShort = d => holOf(d).split(" ")[0];
+// เสาร์-อาทิตย์ และวันแดง = คิดค่าแรงวันหยุด, จันทร์-ศุกร์ = ค่าแรงปกติ
+const isOff = d => { const w = parse(d).getDay(); return w === 0 || (w === 6 && settings.satOff !== false) || !!holOf(d); };
+function norm(d, h){
+  const x = [0,0,0,0,0,0].map((_, i) => Number((h || [])[i]) || 0);
+  if (isOff(d)) { x[2] += x[0]; x[3] += x[1]; x[0] = 0; x[1] = 0; }
+  else { x[0] += x[2]; x[1] += x[3]; x[2] = 0; x[3] = 0; }
+  return x;
+}
+const DEFAULT_SETTINGS = { mult:[1,1.5,1.5,2,0.5,1], rates:{"2026-01":10320,"2027-01":10700}, satOff:true, firstPeriod:null, firstStart:null, endOverride:{} };
+const LS_KEY = "payroll-v1";
+const $ = id => document.getElementById(id);
+const cvar = k => "var(--c" + k + ")";
+
+let settings = structuredClone(DEFAULT_SETTINGS);
+let periods = {};           // key -> {days:{iso:[6]}}
+let col = null;             // cloud collection
+let view = "period";
+
+/* ---------- dates ---------- */
+const pad = n => String(n).padStart(2,"0");
+const iso = d => d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
+const parse = s => { const [y,m,d] = s.split("-").map(Number); return new Date(y, m-1, d); };
+const addDays = (s, n) => { const d = parse(s); d.setDate(d.getDate()+n); return iso(d); };
+const keyOf = (y, m) => y + "-" + pad(m);
+const shiftKey = (k, n) => { let [y,m] = k.split("-").map(Number); m += n; while (m < 1) { m += 12; y--; } while (m > 12) { m -= 12; y++; } return keyOf(y, m); };
+function endOf(k){ return (settings.endOverride || {})[k] || k + "-25"; }
+function startOf(k){
+  const fp = settings.firstPeriod;
+  if (fp && k === fp && settings.firstStart) return settings.firstStart;
+  if (!fp || k < fp) return shiftKey(k, -1) + "-26";
+  return addDays(endOf(shiftKey(k, -1)), 1);
+}
+function daysOf(k){ const out = []; for (let d = startOf(k), e = endOf(k); d <= e; d = addDays(d, 1)) out.push(d); return out; }
+function periodFor(dateIso){
+  let k = dateIso.slice(0,7);
+  if (dateIso > endOf(k)) k = shiftKey(k, 1);
+  else if (dateIso < startOf(k)) k = shiftKey(k, -1);
+  return k;
+}
+const fmtD = s => { const d = parse(s); return d.getDate() + "/" + pad(d.getMonth()+1); };
+const today = iso(new Date());
+let cur = periodFor(today);
+let year = Number(cur.slice(0,4));
+
+/* ---------- money ---------- */
+const won = n => "₩" + Math.round(n).toLocaleString("en-US");
+const hrs = n => (Math.round(n*100)/100).toLocaleString("en-US");
+function rateFor(k){
+  let best = null, v = 10320;
+  for (const [rk, rv] of Object.entries(settings.rates || {})) if (rk <= k && (!best || rk > best)) { best = rk; v = rv; }
+  return v;
+}
+function calc(k){
+  const rate = rateFor(k), tot = [0,0,0,0,0,0];
+  const days = (periods[k] || {}).days || {};
+  for (const d of daysOf(k)) if (days[d]) norm(d, days[d]).forEach((h, i) => tot[i] += h);
+  const amt = tot.map((h, i) => Math.round(h * rate * settings.mult[i]));
+  return { rate, tot, amt, pay: amt.reduce((a,b) => a+b, 0), hours: tot.reduce((a,b) => a+b, 0) };
+}
+const dayPay = (k, h) => h.reduce((s, x, i) => s + (Number(x)||0) * rateFor(k) * settings.mult[i], 0);
+
+/* ---------- storage ---------- */
+function loadLocal(){ try { const o = JSON.parse(localStorage.getItem(LS_KEY) || "{}"); if (o.settings) settings = { ...DEFAULT_SETTINGS, ...o.settings }; periods = o.periods || {}; } catch {} }
+function saveLocal(){ try { localStorage.setItem(LS_KEY, JSON.stringify({ settings, periods })); } catch {} }
+async function persistPeriod(k){
+  const body = { days: (periods[k] || {}).days || {} };
+  if ((periods[k] || {}).slip) body.slip = { ...periods[k].slip };
+  if (col) { try { await col.doc("p" + k).set(body); return; } catch { toast("บันทึกออนไลน์ไม่สำเร็จ"); } }
+  saveLocal();
+}
+async function persistSettings(){
+  if (col) { try { await col.doc("settings").set(structuredClone(settings)); return; } catch { toast("บันทึกออนไลน์ไม่สำเร็จ"); } }
+  saveLocal();
+}
+function toast(msg){ const t=$("toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(toast.h); toast.h=setTimeout(()=>t.classList.remove("show"),1800); }
+
+/* ---------- render: period ---------- */
+let brkAll = false;
+function renderPeriod(){
+  const [y, m] = cur.split("-").map(Number);
+  $("pTitle").textContent = MSHORT[m-1] + " " + y;
+  const c = calc(cur);
+  $("pay").textContent = won(c.pay);
+  $("range").textContent = "งวด " + fmtD(startOf(cur)) + " – " + fmtD(endOf(cur));
+  $("hrs").textContent = hrs(c.hours) + " ชม.";
+  $("rateBtn").textContent = won(c.rate) + "/ชม. ✎";
+  const st = $("status"); st.textContent = "";
+  if (daysOf(cur).includes(today)) {
+    const filled = ((periods[cur] || {}).days || {})[today];
+    const t = document.createElement("button");
+    t.className = filled ? "done" : "todo";
+    t.textContent = filled ? "✓ กรอกวันนี้แล้ว" : "✎ วันนี้ยังไม่ได้กรอก";
+    t.onclick = () => openDay(today);
+    st.appendChild(t);
+    const left = Math.round((parse(endOf(cur)) - parse(today)) / 864e5);
+    const l = document.createElement("span");
+    l.textContent = left ? "งวดนี้ปิดอีก " + left + " วัน" : "วันนี้วันสุดท้ายของงวด";
+    st.appendChild(l);
+  }
+  const brk = $("brk"); brk.textContent = "";
+  const anyH = c.tot.some(x => x);
+  $("brkMore").hidden = !anyH || c.tot.every(x => x);
+  $("brkMore").textContent = brkAll ? "ซ่อนประเภทที่ไม่มีชั่วโมง ▴" : "ดูทุกประเภท ▾";
+  if (!anyH) brk.innerHTML = '<div style="display:block;color:var(--muted);text-align:center">ยังไม่มีชั่วโมงในงวดนี้ · แตะหรือกดค้างวันในปฏิทินเพื่อกรอก</div>';
+  ITEMS.forEach((name, i) => {
+    if (!anyH || (!brkAll && !c.tot[i])) return;
+    const r = document.createElement("div");
+    if (!c.tot[i]) r.className = "zero";
+    r.innerHTML = '<i></i><span class="nm"><span></span><small class="num"></small></span><b class="num"></b>';
+    r.children[0].style.background = cvar(i);
+    r.querySelector(".nm span").textContent = name;
+    r.querySelector("small").textContent = hrs(c.tot[i]) + " ชม. × " + won(c.rate * settings.mult[i]);
+    r.children[2].textContent = won(c.amt[i]);
+    brk.appendChild(r);
+  });
+  renderDays();
+}
+
+
+let dayMode = (() => { try { return localStorage.getItem("payroll-daymode") === "list" ? "list" : "cal"; } catch { return "cal"; } })();
+document.querySelectorAll(".dmode button").forEach(b => b.onclick = () => { dayMode = b.dataset.m; try { localStorage.setItem("payroll-daymode", dayMode); } catch {} renderDays(); });
+const quickOf = d => isOff(d) ? [0,0,8,2,0,0] : [8,2,0,0,0,0];
+function attachPress(b, d){
+  let timer = null, fired = false;
+  const start = () => { fired = false; b.classList.add("press"); timer = setTimeout(() => { fired = true; b.classList.remove("press"); quickFill(d); }, 450); };
+  const stop = () => { clearTimeout(timer); b.classList.remove("press"); };
+  b.addEventListener("pointerdown", start);
+  ["pointerup","pointerleave","pointercancel"].forEach(ev => b.addEventListener(ev, stop));
+  b.addEventListener("contextmenu", e => e.preventDefault());
+  b.addEventListener("click", e => { if (fired) { e.preventDefault(); fired = false; return; } openDay(d); });
+}
+async function quickFill(d){
+  const k = periodFor(d);
+  const had = (((periods[k] || {}).days) || {})[d];
+  if (had && had.some(x => Number(x))) { toast("วันนี้มีข้อมูลแล้ว แตะเพื่อแก้ไข"); return; }
+  periods[k] = periods[k] || { days:{} };
+  periods[k].days = { ...(periods[k].days || {}), [d]: quickOf(d) };
+  try { navigator.vibrate && navigator.vibrate(15); } catch {}
+  renderAll(); toast("กรอก " + fmtD(d) + " · " + (isOff(d) ? "วันหยุด 8+2" : "ทำงานปกติ 8+2"));
+  await persistPeriod(k);
+}
+function renderDays(){
+  const box = $("days"); box.textContent = "";
+  box.className = dayMode === "cal" ? "cal" : "days";
+  document.querySelectorAll(".dmode button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.m === dayMode)));
+  const days = (periods[cur] || {}).days || {};
+  const all = daysOf(cur);
+  if (dayMode === "cal") {
+    const head = document.createElement("div"); head.className = "cal-head";
+    DAYS.forEach((d, i) => { const s = document.createElement("span"); s.textContent = d; if (i === 0) s.className = "sunc"; if (i === 6) s.className = "satc"; head.appendChild(s); });
+    { const s = document.createElement("span"); s.textContent = "รวม"; head.appendChild(s); }
+    box.appendChild(head);
+    const grid = document.createElement("div"); grid.className = "cal-grid";
+    let wkH = 0;
+    const addWk = () => { const w = document.createElement("div"); w.className = "wk" + (wkH > 52 ? " heavy" : ""); w.innerHTML = "<b class='num'></b><span>ชม.</span>"; w.children[0].textContent = wkH ? hrs(wkH) : "–"; if (wkH > 52) w.title = "เกิน 52 ชม./สัปดาห์"; grid.appendChild(w); wkH = 0; };
+    for (let i = 0; i < parse(all[0]).getDay(); i++) { const p = document.createElement("span"); p.className = "cell pad"; grid.appendChild(p); }
+    all.forEach((d, idx) => {
+      const dt = parse(d), h = norm(d, days[d]);
+      const b = document.createElement("button");
+      let cls = "cell";
+      if (h[2] || h[3]) cls += " hol"; else if (h[0] || h[1]) cls += " work"; else if (h[5]) cls += " free";
+      if (dt.getDay() === 0 || holOf(d)) cls += " sun"; else if (dt.getDay() === 6) cls += " sat";
+      if (holOf(d)) cls += " phol";
+      if (d === today) cls += " today";
+      b.className = cls;
+      const showM = idx === 0 || dt.getDate() === 1;
+      const dn = document.createElement("span"); dn.className = "dn num" + (showM ? " m" : "");
+      dn.textContent = dt.getDate() + (showM ? " " + MSHORT[dt.getMonth()] : "");
+      b.appendChild(dn);
+      if (holOf(d)) { const hn = document.createElement("span"); hn.className = "hn"; hn.textContent = holShort(d); b.appendChild(hn); }
+      const lines = [];
+      if (h[0] || h[1]) lines.push([hrs(h[0]) + (h[1] ? "+" + hrs(h[1]) : ""), 0]);
+      if (h[2] || h[3]) lines.push([hrs(h[2]) + (h[3] ? "+" + hrs(h[3]) : ""), 2]);
+      if (h[4]) lines.push(["กะ" + hrs(h[4]), 4]);
+      if (h[5]) lines.push(["ฟรี", 5]);
+      for (const [t, c] of lines) { const s = document.createElement("span"); s.className = "hl num"; s.style.color = cvar(c); s.textContent = t; b.appendChild(s); }
+      const dpv = dayPay(cur, h);
+      if (dpv) { const s = document.createElement("span"); s.className = "dp num"; s.textContent = "₩" + Math.round(dpv / 1000) + "k"; b.appendChild(s); }
+      wkH += h[0] + h[1] + h[2] + h[3] + h[4];
+      b.setAttribute("aria-label", DAYS[dt.getDay()] + " " + fmtD(d) + (holOf(d) ? " " + holOf(d) : "") + (lines.length ? " " + lines.map(x => x[0]).join(" ") : " ว่าง"));
+      attachPress(b, d);
+      grid.appendChild(b);
+      if (dt.getDay() === 6 || idx === all.length - 1) {
+        for (let i = dt.getDay() + 1; i <= 6; i++) { const p = document.createElement("span"); p.className = "cell pad"; grid.appendChild(p); }
+        addWk();
+      }
+    });
+    box.appendChild(grid);
+    const lg = document.createElement("div"); lg.className = "calleg";
+    lg.innerHTML = '<span>กดค้างที่วัน = กรอกด่วน</span><span><b style="color:var(--sun)">แดง</b> = อาทิตย์/วันแดง</span><span><b style="color:var(--sat)">ฟ้า</b> = เสาร์</span><span><i style="background:var(--c0)"></i>ทำงานปกติ+OT</span><span><i style="background:var(--c2)"></i>วันหยุด+OT</span><span><i style="background:var(--c5)"></i>วันฟรี</span>';
+    box.appendChild(lg);
+    return;
+  }
+  const list = box;
+  const worked = all.filter(d => (days[d] || []).some(x => Number(x)));
+  if (!worked.length) { list.innerHTML = '<div class="empty" style="padding:16px">ยังไม่มีวันทำงานในงวดนี้ สลับไปที่ปฏิทินแล้วแตะวันที่เพื่อกรอก</div>'; return; }
+  for (const d of worked) {
+    const dt = parse(d), h = norm(d, days[d]);
+    const b = document.createElement("button");
+    b.className = "day" + (dt.getDay() === 0 || holOf(d) ? " sun" : "") + (d === today ? " today" : "");
+    b.innerHTML = '<span class="d"><b class="num"></b><small></small></span><span class="pills"></span><span class="amt num"></span>';
+    b.querySelector("b").textContent = fmtD(d);
+    b.querySelector("small").textContent = DAYS[dt.getDay()] + (holOf(d) ? " · " + holShort(d) : "") + (d === today ? " · วันนี้" : "");
+    const pills = b.querySelector(".pills");
+    let any = false;
+    h.forEach((v, i) => { if (Number(v)) { any = true; const p = document.createElement("span"); p.className = "pill"; p.style.background = cvar(i); p.innerHTML = '<span></span> <span class="num"></span>'; p.children[0].textContent = SHORT[i]; p.children[1].textContent = hrs(v); pills.appendChild(p); } });
+    if (!any) pills.innerHTML = '<span class="empty">—</span>';
+    b.querySelector(".amt").textContent = any ? won(dayPay(cur, h)) : "";
+    b.onclick = () => openDay(d);
+    list.appendChild(b);
+  }
+}
+
+/* ---------- render: year ---------- */
+function renderYear(){
+  $("yTitle").textContent = year;
+  const rows = [], tot = [0,0,0,0,0,0]; let sum = 0, h = 0, n = 0;
+  for (let m = 1; m <= 12; m++) {
+    const k = keyOf(year, m), c = calc(k);
+    rows.push([k, m, c]); sum += c.pay; h += c.hours; if (c.pay) n++;
+    c.tot.forEach((x, i) => tot[i] += x);
+  }
+  $("yTotal").textContent = won(sum);
+  $("yAvg").textContent = won(n ? sum / n : 0);
+  $("yHrs").textContent = hrs(h) + " ชม. · " + n + " เดือน";
+  const max = Math.max(1, ...rows.map(r => r[2].pay));
+  const box = $("months"); box.textContent = "";
+  for (const [k, m, c] of rows) {
+    const b = document.createElement("button"); b.className = "mrow";
+    b.innerHTML = '<span></span><div class="track"><div class="fill"></div></div><b class="num"></b>';
+    b.children[0].textContent = MSHORT[m-1];
+    b.querySelector(".fill").style.width = (c.pay / max * 100) + "%";
+    b.children[2].textContent = c.pay ? won(c.pay) : "—";
+    b.onclick = () => { cur = k; setView("period"); };
+    box.appendChild(b);
+  }
+  const yb = $("yBrk"); yb.textContent = "";
+  ITEMS.forEach((name, i) => {
+    const r = document.createElement("div"); if (!tot[i]) r.className = "zero";
+    r.innerHTML = '<i></i><span></span><b class="num"></b>';
+    r.children[0].style.background = cvar(i); r.children[1].textContent = name; r.children[2].textContent = hrs(tot[i]) + " ชม.";
+    yb.appendChild(r);
+  });
+}
+
+/* ---------- render: settings ---------- */
+function renderSettings(){
+  $("satOff").checked = settings.satOff !== false;
+  $("satInfo").textContent = settings.satOff !== false ? "เปิด: วันเสาร์ใช้ ทำงานวันหยุด / OT วันหยุด" : "ปิด: วันเสาร์ใช้ ทำงานวันปกติ / OT วันปกติ";
+  const rb = $("rates"); rb.textContent = "";
+  const entries = Object.entries(settings.rates || {}).sort((a,b) => a[0].localeCompare(b[0]));
+  if (!entries.length) rb.innerHTML = '<div class="empty">ยังไม่ได้ตั้ง ใช้ค่าเริ่มต้น ₩10,320/ชม.</div>';
+  for (const [k, v] of entries) {
+    const [y, m] = k.split("-").map(Number);
+    const r = document.createElement("div"); r.className = "set";
+    r.innerHTML = '<span></span><span style="display:flex;align-items:center;gap:6px"><input class="inp num" inputmode="numeric"><button class="del" aria-label="ลบ">✕</button></span>';
+    r.children[0].textContent = "ตั้งแต่งวด " + MSHORT[m-1] + " " + y;
+    const inp = r.querySelector("input"); inp.value = v;
+    inp.onchange = () => { const n = parseInt(inp.value.replace(/,/g,"")); if (n > 0) { settings.rates[k] = n; persistSettings(); renderAll(); toast("บันทึกแล้ว"); } else inp.value = v; };
+    r.querySelector(".del").onclick = () => { if (confirm("ลบค่าแรงของงวด " + MSHORT[m-1] + " " + y + " ?")) { delete settings.rates[k]; persistSettings(); renderAll(); } };
+    rb.appendChild(r);
+  }
+  const mb = $("mults"); mb.textContent = "";
+  ITEMS.forEach((name, i) => {
+    const r = document.createElement("div"); r.className = "set";
+    r.innerHTML = '<label><i></i><span></span></label><span style="display:flex;align-items:center;gap:8px"><span class="amt num"></span><input class="inp num" inputmode="decimal"></span>';
+    r.querySelector("i").style.background = cvar(i);
+    r.querySelector("label span").textContent = name;
+    r.querySelector(".amt").textContent = "= " + won(rateFor(cur) * settings.mult[i]) + " ×";
+    const inp = r.querySelector("input"); inp.value = settings.mult[i]; inp.setAttribute("aria-label", "ตัวคูณ " + name);
+    inp.onchange = () => { const n = parseFloat(inp.value); if (n >= 0) { settings.mult[i] = n; persistSettings(); renderAll(); toast("บันทึกแล้ว"); } else inp.value = settings.mult[i]; };
+    mb.appendChild(r);
+  });
+}
+function renderAll(){ renderPeriod(); renderYear(); renderSettings(); }
+
+let lastView = "period";
+function setView(v){
+  if (v !== "settings") lastView = v;
+  view = v;
+  for (const s of ["period","year","settings"]) $("v-" + s).hidden = s !== v;
+  document.querySelectorAll(".tabs button").forEach(b => b.setAttribute("aria-selected", String(b.dataset.v === v)));
+  renderAll(); window.scrollTo(0, 0);
+  if (v === "settings") fillRateForm(cur);
+}
+
+/* ---------- day sheet ---------- */
+let editDate = null, draft = [0,0,0,0,0,0];
+function openDay(d){
+  editDate = d;
+  const k = periodFor(d);
+  draft = [...(((periods[k] || {}).days || {})[d] || [0,0,0,0,0,0])].map(Number);
+  renderSheet();
+  $("sheet").classList.add("open"); $("scrim").classList.add("open");
+  $("sheet").setAttribute("aria-hidden","false"); document.body.classList.add("lock");
+}
+function closeSheet(){
+  $("sheet").classList.remove("open"); $("scrim").classList.remove("open");
+  $("sheet").setAttribute("aria-hidden","true"); document.body.classList.remove("lock");
+}
+function renderSheet(){
+  const dt = parse(editDate);
+  $("dTitle").textContent = DAYS[dt.getDay()] + " " + dt.getDate() + " " + MSHORT[dt.getMonth()] + " " + dt.getFullYear();
+  $("dTitle").style.color = dt.getDay() === 0 || holOf(editDate) ? "var(--sun)" : "";
+  const off = isOff(editDate);
+  draft = norm(editDate, draft);
+  $("holNote").hidden = !off;
+  $("holNote").textContent = (holOf(editDate) ? "🇰🇷 " + holOf(editDate) : (dt.getDay() === 6 ? "วันเสาร์" : "วันอาทิตย์")) + " · คิดเป็นค่าแรงวันหยุด";
+  const pz = $("presets"); pz.textContent = "";
+  const presets = off
+    ? [["วันหยุด 8+2",[0,0,8,2,0,0]],["วันหยุด 8",[0,0,8,0,0,0]],["วันฟรี 8",[0,0,0,0,0,8]],["ล้าง",[0,0,0,0,0,0]]]
+    : [["ทำงานปกติ 8+2",[8,2,0,0,0,0]],["ทำงานปกติ 8",[8,0,0,0,0,0]],["วันฟรี 8",[0,0,0,0,0,8]],["ล้าง",[0,0,0,0,0,0]]];
+  for (let n = 1; n <= 7; n++) {
+    const pd = addDays(editDate, -n), ph = (((periods[periodFor(pd)] || {}).days) || {})[pd];
+    if (ph && ph.some(x => Number(x))) { const v = norm(pd, ph); presets.unshift(["↺ เหมือน " + fmtD(pd), [v[0] + v[2], v[1] + v[3], 0, 0, v[4], v[5]]]); break; }
+  }
+  for (const [label, h] of presets) { const b = document.createElement("button"); b.textContent = label; b.onclick = () => { draft = [...h]; renderSheet(); }; pz.appendChild(b); }
+  const st = $("steps"); st.textContent = "";
+  ITEMS.forEach((name, i) => {
+    if (off ? i < 2 : (i === 2 || i === 3)) return;
+    const r = document.createElement("div"); r.className = "step";
+    r.innerHTML = '<div class="srow"><i></i><span></span><input class="num" inputmode="decimal"></div><div class="chips"></div>';
+    r.querySelector("i").style.background = cvar(i);
+    r.querySelector("span").textContent = name;
+    const inp = r.querySelector("input"); inp.value = draft[i] || ""; inp.placeholder = "0"; inp.setAttribute("aria-label", name + " ชั่วโมง");
+    const chips = r.querySelector(".chips");
+    const mark = () => chips.querySelectorAll("button").forEach(c => { const on = Number(c.dataset.v) === (draft[i] || 0); c.setAttribute("aria-pressed", String(on)); c.style.background = on ? cvar(i) : ""; });
+    for (let n = 0; n <= 12; n++) { const c = document.createElement("button"); c.dataset.v = n; c.textContent = n; c.onclick = () => { draft[i] = n; inp.value = n || ""; mark(); updSum(); }; chips.appendChild(c); }
+    mark();
+    requestAnimationFrame(() => { const on = chips.querySelector('[aria-pressed="true"]'); if (on) chips.scrollLeft = Math.max(0, on.offsetLeft - chips.clientWidth / 2 + on.offsetWidth / 2); });
+    inp.oninput = () => { const n = parseFloat(inp.value); draft[i] = n >= 0 ? Math.min(24, n) : 0; mark(); updSum(); };
+    st.appendChild(r);
+  });
+  updSum();
+}
+function updSum(){ const k = periodFor(editDate); const t = draft.reduce((a,b) => a + (b||0), 0); $("dSum").textContent = t ? hrs(t) + " ชม. · " + won(dayPay(k, draft)) : "ยังไม่มีชั่วโมง"; }
+async function saveDay(next){
+  const k = periodFor(editDate);
+  periods[k] = periods[k] || { days:{} };
+  periods[k].days = { ...(periods[k].days || {}) };
+  draft = norm(editDate, draft);
+  if (draft.some(x => x > 0)) periods[k].days[editDate] = draft.map(x => x || 0);
+  else delete periods[k].days[editDate];
+  cur = k;
+  const saved = editDate;
+  if (next) { editDate = addDays(editDate, 1); draft = [...((((periods[periodFor(editDate)] || {}).days) || {})[editDate] || [0,0,0,0,0,0])].map(Number); renderSheet(); }
+  else closeSheet();
+  renderAll(); toast("บันทึก " + fmtD(saved) + " แล้ว");
+  await persistPeriod(k);
+}
+function moveDay(n){ editDate = addDays(editDate, n); draft = [...((((periods[periodFor(editDate)] || {}).days) || {})[editDate] || [0,0,0,0,0,0])].map(Number); renderSheet(); }
+
+/* ---------- rate edit ---------- */
+function fillRateForm(k){
+  const sel = $("rPeriod"); sel.textContent = "";
+  const keys = Object.keys(settings.rates || {}).sort();
+  let from = shiftKey(cur, -12); if (keys[0] && keys[0] < from) from = keys[0];
+  const to = shiftKey(cur, 12);
+  for (let x = from; x <= to; x = shiftKey(x, 1)) {
+    const [y, m] = x.split("-").map(Number);
+    const o = document.createElement("option"); o.value = x;
+    o.textContent = MSHORT[m-1] + " " + y + " (" + fmtD(startOf(x)) + " – " + fmtD(endOf(x)) + ")";
+    sel.appendChild(o);
+  }
+  sel.value = k;
+  showRate();
+}
+function showRate(){
+  const k = $("rPeriod").value;
+  $("rValue").value = rateFor(k);
+  $("rNow").innerHTML = "ตอนนี้งวดนี้ใช้ <b class='num'></b> ต่อชั่วโมง";
+  $("rNow").querySelector("b").textContent = won(rateFor(k));
+}
+function saveRate(){
+  const k = $("rPeriod").value;
+  const n = parseInt(String($("rValue").value).replace(/[,₩\s]/g,""));
+  if (!(n > 0)) { toast("ใส่ค่าแรงมากกว่า 0"); $("rValue").focus(); return; }
+  settings.rates = { ...(settings.rates || {}), [k]: n };
+  persistSettings(); renderAll(); showRate();
+  const [y, m] = k.split("-").map(Number);
+  toast("บันทึกแล้ว " + won(n) + "/ชม. ตั้งแต่ " + MSHORT[m-1] + " " + y);
+}
+$("rPeriod").onchange = showRate;
+document.querySelectorAll("[data-go=settings]").forEach(b => b.onclick = () => setView("settings"));
+$("back").onclick = () => setView(lastView);
+$("brkMore").onclick = () => { brkAll = !brkAll; renderPeriod(); };
+function applyLook(){
+  let th = "auto", sz = "normal";
+  try { th = localStorage.getItem("payroll-theme") || "auto"; sz = localStorage.getItem("payroll-size") || "normal"; } catch {}
+  if (th === "auto") delete document.documentElement.dataset.theme; else document.documentElement.dataset.theme = th;
+  document.documentElement.classList.toggle("big", sz === "big");
+  document.querySelectorAll("#themeSeg button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v === th)));
+  document.querySelectorAll("#sizeSeg button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v === sz)));
+}
+document.querySelectorAll("#themeSeg button").forEach(b => b.onclick = () => { try { localStorage.setItem("payroll-theme", b.dataset.v); } catch {} applyLook(); });
+document.querySelectorAll("#sizeSeg button").forEach(b => b.onclick = () => { try { localStorage.setItem("payroll-size", b.dataset.v); } catch {} applyLook(); });
+applyLook();
+$("satOff").onchange = () => { settings.satOff = $("satOff").checked; persistSettings(); renderAll(); toast(settings.satOff ? "วันเสาร์ = ค่าแรงวันหยุด" : "วันเสาร์ = ค่าแรงปกติ"); };
+$("rSave").onclick = saveRate;
+$("rValue").addEventListener("keydown", e => { if (e.key === "Enter") saveRate(); });
+function editRate(){
+  setView("settings");
+  $("rValue").focus(); $("rValue").select();
+}
+
+/* ---------- export ---------- */
+function saveFile(name, blob){
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+}
+function backup(){ saveFile("สำรองเงินเดือน-" + today + ".json", new Blob([JSON.stringify({ app:"payroll", settings, periods }, null, 1)], { type:"application/json" })); toast("ดาวน์โหลดไฟล์สำรองแล้ว"); }
+function restore(file){
+  const r = new FileReader();
+  r.onload = () => {
+    try {
+      const o = JSON.parse(r.result);
+      if (!o || !o.periods || !o.settings) throw 0;
+      if (!confirm("นำเข้าข้อมูลจากไฟล์นี้? ข้อมูลในเครื่องตอนนี้จะถูกแทนที่")) return;
+      settings = { ...DEFAULT_SETTINGS, ...o.settings }; periods = o.periods; saveLocal(); renderAll(); toast("นำเข้าข้อมูลแล้ว");
+    } catch { toast("ไฟล์ไม่ถูกต้อง"); }
+  };
+  r.readAsText(file);
+}
+async function exportCsv(){
+  const rows = [["งวด","วันที่", ...ITEMS, "ค่าแรง/ชม.", "เงิน (₩)"]];
+  for (const k of Object.keys(periods).sort()) for (const d of daysOf(k)) {
+    const raw = ((periods[k].days) || {})[d]; if (!raw) continue; const h = norm(d, raw);
+    rows.push([k, d, ...h, rateFor(k), Math.round(dayPay(k, h))]);
+  }
+  const csv = "\uFEFF" + rows.map(r => r.map(v => '"' + String(v).replace(/"/g,'""') + '"').join(",")).join("\r\n");
+  saveFile("เงินเดือน-" + today + ".csv", new Blob([csv], { type:"text/csv" }));
+}
+
+const sheetOpen = () => $("sheet").classList.contains("open");
+
+/* ---------- wiring ---------- */
+$("pPrev").onclick = () => { cur = shiftKey(cur, -1); renderPeriod(); };
+$("pNext").onclick = () => { cur = shiftKey(cur, 1); renderPeriod(); };
+$("yPrev").onclick = () => { year--; renderYear(); };
+$("yNext").onclick = () => { year++; renderYear(); };
+$("rateBtn").onclick = editRate;
+document.querySelectorAll(".tabs button").forEach(b => b.onclick = () => setView(b.dataset.v));
+$("close").onclick = closeSheet; $("scrim").onclick = closeSheet;
+$("dPrev").onclick = () => moveDay(-1); $("dNext").onclick = () => moveDay(1);
+$("saveStay").onclick = () => saveDay(false);
+$("saveNext").onclick = () => saveDay(true);
+document.addEventListener("keydown", e => { if (sheetOpen() && e.key === "Escape") closeSheet(); });
+
+loadLocal();
+renderAll();
+$("export").onclick = exportCsv;
+$("bk").onclick = backup;
+$("rs").onclick = () => $("rsFile").click();
+$("rsFile").onchange = e => { if (e.target.files[0]) restore(e.target.files[0]); e.target.value = ""; };
+if ("serviceWorker" in navigator) addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
+</script>
+</body>
+</html>
