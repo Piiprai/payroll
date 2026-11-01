@@ -65,6 +65,9 @@ main{max-width:560px;margin:0 auto;padding:12px 16px 110px}
 .status button,.status span{border:0;border-radius:999px;padding:4px 10px;font-size:.82rem;font-weight:600;background:var(--soft);color:var(--muted)}
 .status .todo{background:color-mix(in srgb,var(--sun) 12%,var(--surface));color:var(--sun)}
 .status .done{background:color-mix(in srgb,var(--c4) 14%,var(--surface));color:var(--c4)}
+.thb{font-size:1.15rem;font-weight:600;color:var(--muted);margin:-4px 0 8px}
+.fxpill{border:0;background:var(--soft);border-radius:999px;padding:4px 10px;font-size:.8rem;color:var(--muted);font-weight:500}
+.fxpill b{color:var(--ink);font-weight:600}
 .more{border:0;background:none;color:var(--accent);font-weight:600;font-size:.85rem;padding:8px 0 4px;width:100%;text-align:center}
 .iconbtn{border:1px solid var(--line);background:var(--surface);width:38px;height:38px;border-radius:50%;font-size:1.05rem;flex:0 0 auto}
 .back{border:0;background:none;color:var(--accent);font-weight:600;font-size:.95rem;padding:6px 0}
@@ -229,8 +232,9 @@ h2 small{color:var(--muted);font-weight:500;font-size:.84rem}
     <div class="hero">
       <p class="lbl">เงินเดือนงวดนี้ (ก่อนหัก)</p>
       <div class="pay num" id="pay">₩0</div>
+      <div class="thb num" id="thb"></div>
       <div class="status" id="status"></div>
-      <div class="sub"><span id="range"></span><span id="hrs"></span><button class="rate num" id="rateBtn" title="แก้ค่าแรงต่อชั่วโมง"></button></div>
+      <div class="sub"><span id="range"></span><span id="hrs"></span><button class="rate num" id="rateBtn" title="แก้ค่าแรงต่อชั่วโมง"></button><button class="fxpill num" id="fxPill" title="อัปเดตอัตราแลกเปลี่ยน"></button></div>
       <div class="brk" id="brk"></div>
       <button class="more" id="brkMore" hidden></button>
     </div>
@@ -251,7 +255,7 @@ h2 small{color:var(--muted);font-weight:500;font-size:.84rem}
     </div>
     <div class="card">
       <div class="ytot">
-        <div><small>รวมทั้งปี (ก่อนหัก)</small><div class="big num" id="yTotal">₩0</div></div>
+        <div><small>รวมทั้งปี (ก่อนหัก)</small><div class="big num" id="yTotal">₩0</div><small class="num" id="yThb"></small></div>
         <div style="text-align:right"><small>เฉลี่ยต่อเดือน</small><b class="num" id="yAvg">₩0</b><small id="yHrs"></small></div>
       </div>
       <div id="months"></div>
@@ -282,6 +286,12 @@ h2 small{color:var(--muted);font-weight:500;font-size:.84rem}
     <p class="hint">ค่าแรงที่บันทึกจะใช้ตั้งแต่งวดที่เลือกเป็นต้นไป จนกว่าจะมีการเปลี่ยนอีกครั้ง</p>
     <h2>ประวัติค่าแรง</h2>
     <div class="card" id="rates"></div>
+    <h2>อัตราแลกเปลี่ยน วอน → บาท</h2>
+    <div class="card">
+      <div class="set"><span>ที่มาของอัตรา</span><div class="segc" id="fxSeg"><button data-v="auto">อัปเดตอัตโนมัติ</button><button data-v="manual">ตั้งเอง</button></div></div>
+      <div class="set" style="border-bottom:0"><span>₩1,000 = ฿</span><input class="inp num" id="fxIn" inputmode="decimal" autocomplete="off"></div>
+    </div>
+    <p class="hint" id="fxInfo"></p>
     <h2>วันเสาร์</h2>
     <div class="card">
       <div class="set" style="border-bottom:0">
@@ -357,7 +367,7 @@ function norm(d, h){
   else { x[0] += x[2]; x[1] += x[3]; x[2] = 0; x[3] = 0; }
   return x;
 }
-const DEFAULT_SETTINGS = { mult:[1,1.5,1.5,2,0.5,1], rates:{"2026-01":10320,"2027-01":10700}, satOff:true, firstPeriod:null, firstStart:null, endOverride:{} };
+const DEFAULT_SETTINGS = { mult:[1,1.5,1.5,2,0.5,1], rates:{"2026-01":10320,"2027-01":10700}, satOff:true, fxMode:"auto", fxManual:0.02547, firstPeriod:null, firstStart:null, endOverride:{} };
 const LS_KEY = "payroll-v1";
 const $ = id => document.getElementById(id);
 const cvar = k => "var(--c" + k + ")";
@@ -425,6 +435,35 @@ async function persistSettings(){
 }
 function toast(msg){ const t=$("toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(toast.h); toast.h=setTimeout(()=>t.classList.remove("show"),1800); }
 
+/* ---------- exchange rate ---------- */
+const FX_KEY = "payroll-fx";
+let fx = (() => { try { return JSON.parse(localStorage.getItem(FX_KEY) || "null"); } catch { return null; } })();
+const fxRate = () => settings.fxMode === "manual" && settings.fxManual > 0 ? settings.fxManual : (fx && fx.rate) || settings.fxManual || 0;
+const baht = n => "฿" + Math.round(n).toLocaleString("en-US");
+const two = n => String(n).padStart(2, "0");
+function fxWhen(){
+  if (settings.fxMode === "manual" || !(fx && fx.rate)) return "อัตราที่ตั้งเอง";
+  const d = new Date(fx.at), now = new Date();
+  const t = two(d.getHours()) + ":" + two(d.getMinutes());
+  return d.toDateString() === now.toDateString() ? "อัปเดต " + t : "อัปเดต " + d.getDate() + "/" + two(d.getMonth()+1) + " " + t;
+}
+let fxBusy = false;
+async function refreshFx(byUser){
+  if (fxBusy || settings.fxMode === "manual") { if (byUser && settings.fxMode === "manual") toast("ตอนนี้ใช้อัตราที่ตั้งเอง เปลี่ยนได้ในหน้าตั้งค่า"); return; }
+  fxBusy = true;
+  let got = null;
+  try { const j = await (await fetch("https://open.er-api.com/v6/latest/KRW", { cache:"no-store" })).json(); if (j && j.rates && j.rates.THB > 0) got = { rate:j.rates.THB, at:Date.now(), src:"open.er-api.com" }; } catch {}
+  if (!got) { try { const j = await (await fetch("https://api.frankfurter.app/latest?from=KRW&to=THB", { cache:"no-store" })).json(); if (j && j.rates && j.rates.THB > 0) got = { rate:j.rates.THB, at:Date.now(), src:"frankfurter.app" }; } catch {} }
+  fxBusy = false;
+  if (got) { fx = got; try { localStorage.setItem(FX_KEY, JSON.stringify(fx)); } catch {} renderAll(); if (byUser) toast("อัปเดตอัตราแล้ว ₩1,000 = ฿" + (fx.rate * 1000).toFixed(2)); }
+  else if (byUser) toast("ดึงอัตราล่าสุดไม่ได้ ใช้อัตราเดิมไปก่อน");
+}
+function renderFx(c){
+  const r = fxRate();
+  $("thb").textContent = r ? "≈ " + baht(c.pay * r) : "";
+  $("fxPill").innerHTML = r ? "₩1,000 = <b>฿" + (r * 1000).toFixed(2) + "</b> · " + fxWhen() + " ↻" : "ตั้งอัตราเงินบาท ↻";
+}
+
 /* ---------- render: period ---------- */
 let brkAll = false;
 function renderPeriod(){
@@ -432,6 +471,7 @@ function renderPeriod(){
   $("pTitle").textContent = MSHORT[m-1] + " " + y;
   const c = calc(cur);
   $("pay").textContent = won(c.pay);
+  renderFx(c);
   $("range").textContent = "งวด " + fmtD(startOf(cur)) + " – " + fmtD(endOf(cur));
   $("hrs").textContent = hrs(c.hours) + " ชม.";
   $("rateBtn").textContent = won(c.rate) + "/ชม. ✎";
@@ -572,6 +612,7 @@ function renderYear(){
     c.tot.forEach((x, i) => tot[i] += x);
   }
   $("yTotal").textContent = won(sum);
+  $("yThb").textContent = fxRate() ? "≈ " + baht(sum * fxRate()) + " · เฉลี่ย " + baht((n ? sum / n : 0) * fxRate()) + "/เดือน" : "";
   $("yAvg").textContent = won(n ? sum / n : 0);
   $("yHrs").textContent = hrs(h) + " ชม. · " + n + " เดือน";
   const max = Math.max(1, ...rows.map(r => r[2].pay));
@@ -596,6 +637,11 @@ function renderYear(){
 
 /* ---------- render: settings ---------- */
 function renderSettings(){
+  const mode = settings.fxMode === "manual" ? "manual" : "auto";
+  document.querySelectorAll("#fxSeg button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v === mode)));
+  const fi = $("fxIn"); if (document.activeElement !== fi) fi.value = fxRate() ? (fxRate() * 1000).toFixed(2) : "";
+  fi.disabled = mode !== "manual";
+  $("fxInfo").textContent = mode === "manual" ? "ใช้อัตราที่ตั้งเองทุกที่ในแอป" : (fx && fx.rate ? "ดึงอัตรากลางตลาดจาก " + fx.src + " อัปเดตทุก 10 นาทีตอนเปิดแอป (" + fxWhen() + ") เป็นอัตราอ้างอิง อัตราโอนเงินจริงของธนาคารจะต่างกันเล็กน้อย" : "ยังดึงอัตราออนไลน์ไม่ได้ ใช้อัตราที่ตั้งไว้ไปก่อน");
   $("satOff").checked = settings.satOff !== false;
   $("satInfo").textContent = settings.satOff !== false ? "เปิด: วันเสาร์ใช้ ทำงานวันหยุด / OT วันหยุด" : "ปิด: วันเสาร์ใช้ ทำงานวันปกติ / OT วันปกติ";
   const rb = $("rates"); rb.textContent = "";
@@ -684,7 +730,7 @@ function renderSheet(){
   });
   updSum();
 }
-function updSum(){ const k = periodFor(editDate); const t = draft.reduce((a,b) => a + (b||0), 0); $("dSum").textContent = t ? hrs(t) + " ชม. · " + won(dayPay(k, draft)) : "ยังไม่มีชั่วโมง"; }
+function updSum(){ const k = periodFor(editDate); const t = draft.reduce((a,b) => a + (b||0), 0), pv = dayPay(k, draft); $("dSum").textContent = t ? hrs(t) + " ชม. · " + won(pv) + (fxRate() ? " ≈ " + baht(pv * fxRate()) : "") : "ยังไม่มีชั่วโมง"; }
 async function saveDay(next){
   const k = periodFor(editDate);
   periods[k] = periods[k] || { days:{} };
@@ -732,6 +778,12 @@ function saveRate(){
   toast("บันทึกแล้ว " + won(n) + "/ชม. ตั้งแต่ " + MSHORT[m-1] + " " + y);
 }
 $("rPeriod").onchange = showRate;
+$("fxPill").onclick = () => { if (settings.fxMode === "manual" || !fxRate()) setView("settings"); else refreshFx(true); };
+document.querySelectorAll("#fxSeg button").forEach(b => b.onclick = () => { settings.fxMode = b.dataset.v; persistSettings(); renderAll(); if (b.dataset.v === "auto") refreshFx(true); else $("fxIn").focus(); });
+$("fxIn").onchange = () => { const n = parseFloat(String($("fxIn").value).replace(/,/g, "")); if (n > 0) { settings.fxManual = n / 1000; persistSettings(); renderAll(); toast("บันทึกอัตรา ₩1,000 = ฿" + n.toFixed(2)); } else renderSettings(); };
+refreshFx(false);
+setInterval(() => refreshFx(false), 10 * 60 * 1000);
+document.addEventListener("visibilitychange", () => { if (!document.hidden && (!fx || Date.now() - fx.at > 10 * 60 * 1000)) refreshFx(false); });
 document.querySelectorAll("[data-go=settings]").forEach(b => b.onclick = () => setView("settings"));
 $("back").onclick = () => setView(lastView);
 $("brkMore").onclick = () => { brkAll = !brkAll; renderPeriod(); };
